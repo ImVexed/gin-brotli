@@ -59,9 +59,6 @@ func Brotli(options Options) gin.HandlerFunc {
 		c.Writer = &brotliWriter{c.Writer, brWriter}
 
 		defer func() {
-			if c.Writer.Size() <= 0 {
-				return
-			}
 			brWriter.Close()
 			c.Header("Content-Length", fmt.Sprint(c.Writer.Size()))
 		}()
@@ -72,6 +69,7 @@ func Brotli(options Options) gin.HandlerFunc {
 func shouldCompress(req *http.Request) bool {
 	if !strings.Contains(req.Header.Get("Accept-Encoding"), "br") ||
 		strings.Contains(req.Header.Get("Connection"), "Upgrade") ||
+	        strings.Contains(req.Header.Get("accept"), "text/event-stream") ||
 		strings.Contains(req.Header.Get("Content-Type"), "text/event-stream") {
 
 		return false
