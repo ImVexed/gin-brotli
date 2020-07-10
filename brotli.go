@@ -59,12 +59,8 @@ func Brotli(options Options) gin.HandlerFunc {
 		c.Writer = &brotliWriter{c.Writer, brWriter}
 
 		defer func() {
-			select {
-			case closed, ok := <-c.Writer.CloseNotify():
-				if ok && closed {
-					return
-				}
-			default:
+			if c.Writer.Size() <= 0 {
+				return
 			}
 			brWriter.Close()
 			c.Header("Content-Length", fmt.Sprint(c.Writer.Size()))
